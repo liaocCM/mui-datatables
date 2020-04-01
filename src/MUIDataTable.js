@@ -699,10 +699,16 @@ class MUIDataTable extends React.Component {
       let column = columns[index];
 
       if (column.customBodyRender) {
-        const tableMeta = this.getTableMeta(rowIndex, index, row, column, dataForTableMeta, {
-          ...this.state,
-          filterList: filterList,
-          searchText: searchText,
+        const tableMeta = this.getTableMeta(
+          rowIndex,
+          index,
+          row,
+          column,
+          dataForTableMeta,
+          {
+            ...this.state,
+            filterList: filterList,
+            searchText: searchText,
           },
           this.props.data[rowIndex],
         );
@@ -802,7 +808,15 @@ class MUIDataTable extends React.Component {
       let changedData = cloneDeep(prevState.data);
       let filterData = cloneDeep(prevState.filterData);
 
-      const tableMeta = this.getTableMeta(row, index, row, prevState.columns[index], prevState.data, prevState, this.props.data[row],);
+      const tableMeta = this.getTableMeta(
+        row,
+        index,
+        row,
+        prevState.columns[index],
+        prevState.data,
+        prevState,
+        this.props.data[row],
+      );
       const funcResult = prevState.columns[index].customBodyRender(value, tableMeta);
 
       const filterValue =
@@ -1094,7 +1108,7 @@ class MUIDataTable extends React.Component {
 
   selectRowDelete = () => {
     const { selectedRows, data, filterList } = this.state;
-    
+
     const selectedMap = buildMap(selectedRows.data);
     const cleanRows = data.filter(({ index }) => !selectedMap[index]);
 
