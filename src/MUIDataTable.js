@@ -543,7 +543,7 @@ class MUIDataTable extends React.Component {
 
         if (typeof column.customBodyRender === 'function') {
           const rowData = tableData[rowIndex].data;
-          tableMeta = this.getTableMeta(rowIndex, colIndex, rowData, column, data, this.state);
+          tableMeta = this.getTableMeta(rowIndex, colIndex, rowData, column, data, this.state, props.data[rowIndex]);
           const funcResult = column.customBodyRender(value, tableMeta);
 
           if (React.isValidElement(funcResult) && funcResult.props.value) {
@@ -703,8 +703,9 @@ class MUIDataTable extends React.Component {
           ...this.state,
           filterList: filterList,
           searchText: searchText,
-        });
-
+          },
+          this.props.data[rowIndex],
+        );
         const funcResult = column.customBodyRender(
           columnValue,
           tableMeta,
@@ -801,7 +802,7 @@ class MUIDataTable extends React.Component {
       let changedData = cloneDeep(prevState.data);
       let filterData = cloneDeep(prevState.filterData);
 
-      const tableMeta = this.getTableMeta(row, index, row, prevState.columns[index], prevState.data, prevState);
+      const tableMeta = this.getTableMeta(row, index, row, prevState.columns[index], prevState.data, prevState, this.props.data[row],);
       const funcResult = prevState.columns[index].customBodyRender(value, tableMeta);
 
       const filterValue =
@@ -827,7 +828,7 @@ class MUIDataTable extends React.Component {
     });
   };
 
-  getTableMeta = (rowIndex, colIndex, rowData, columnData, tableData, curState) => {
+  getTableMeta = (rowIndex, colIndex, rowData, columnData, tableData, curState, originalRowData) => {
     const { columns, data, displayData, filterData, ...tableState } = curState;
 
     return {
@@ -837,6 +838,7 @@ class MUIDataTable extends React.Component {
       rowData: rowData,
       tableData: tableData,
       tableState: tableState,
+      originalRowData,
     };
   };
 
@@ -1092,7 +1094,7 @@ class MUIDataTable extends React.Component {
 
   selectRowDelete = () => {
     const { selectedRows, data, filterList } = this.state;
-
+    
     const selectedMap = buildMap(selectedRows.data);
     const cleanRows = data.filter(({ index }) => !selectedMap[index]);
 
