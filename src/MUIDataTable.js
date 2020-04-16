@@ -253,12 +253,12 @@ class MUIDataTable extends React.Component {
   }
 
   UNSAFE_componentWillMount() {
-    console.log('UNSAFE_componentWillMount');
+    // console.log('UNSAFE_componentWillMount');
     this.initializeTable(this.props);
   }
 
   componentDidMount() {
-    console.log('componentDidMount');
+    // console.log('componentDidMount');
     this.setHeadResizeable(this.headCellRefs, this.tableRef);
 
     // When we have a search, we must reset page to view it unless on serverSide since paging is handled by the user.
@@ -266,9 +266,9 @@ class MUIDataTable extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log('componentDidUpdate', prevProps);
+    // console.log('componentDidUpdate', prevProps);
     if (this.props.data !== prevProps.data || this.props.columns !== prevProps.columns) {
-      console.log('data or columns diff');
+      // console.log('data or columns diff');
       this.updateOptions(this.options, this.props);
       this.setTableData(this.props, TABLE_LOAD.INITIAL, () => {
         this.setTableAction('propsUpdate');
@@ -498,7 +498,7 @@ class MUIDataTable extends React.Component {
   };
 
   transformData = (columns, data) => {
-    console.log('transformData', columns, ' / ', data);
+    // console.log('transformData', columns, ' / ', data);
     const leaf = (obj, path) => path.split('.').reduce((value, el) => (value ? value[el] : undefined), obj);
 
     const transformedData = Array.isArray(data[0])
@@ -521,13 +521,13 @@ class MUIDataTable extends React.Component {
       warnDeprecated(
         'Passing objects in as data is not supported, and will be prevented in a future release. Consider using ids in your data and linking it to external objects if you want to access object data from custom render functions.',
       );
-    console.log('transformedData', transformedData);
+    // console.log('transformedData', transformedData);
     return transformedData;
   };
 
   setTableData(props, status, callback = () => {}) {
-    console.log('props : ', props);
-    console.log('status : ', status);
+    // console.log('props : ', props);
+    // console.log('status : ', status);
     let tableData = [];
     let { columns, filterData, filterList } = this.buildColumns(props.columns);
     let sortIndex = null;
@@ -535,11 +535,11 @@ class MUIDataTable extends React.Component {
     let tableMeta;
 
     const data = status === TABLE_LOAD.INITIAL ? this.transformData(columns, props.data) : props.data;
-    console.log('data : ', data);
+    // console.log('data : ', data);
     const searchText = status === TABLE_LOAD.INITIAL ? this.options.searchText : null;
 
     columns.forEach((column, colIndex) => {
-      console.log('column, colIndex', column, colIndex);
+      // console.log('column, colIndex', column, colIndex);
       for (let rowIndex = 0; rowIndex < data.length; rowIndex++) {
         let value = status === TABLE_LOAD.INITIAL ? data[rowIndex][colIndex] : data[rowIndex].data[colIndex];
 
@@ -550,11 +550,11 @@ class MUIDataTable extends React.Component {
             rawData: props.data[rowIndex],
           });
         }
-        console.log('tableData : ', tableData);
+        // console.log('tableData : ', tableData);
         if (typeof column.customBodyRender === 'function') {
           const rowData = tableData[rowIndex].data;
           tableMeta = this.getTableMeta(rowIndex, colIndex, rowData, column, data, this.state, props.data[rowIndex]);
-          console.log('setTableData customBodyRender');
+          // console.log('setTableData customBodyRender');
           const funcResult = column.customBodyRender(value, tableMeta);
 
           if (React.isValidElement(funcResult) && funcResult.props.value) {
@@ -723,7 +723,7 @@ class MUIDataTable extends React.Component {
           },
           rawData,
         );
-        console.log('computeDisplayRow customBodyRender');
+        // console.log('computeDisplayRow customBodyRender');
         const funcResult = column.customBodyRender(
           columnValue,
           tableMeta,
@@ -829,7 +829,7 @@ class MUIDataTable extends React.Component {
         prevState,
         this.props.data[row],
       );
-      console.log('updateDataCol customBodyRender');
+      // console.log('updateDataCol customBodyRender');
       const funcResult = prevState.columns[index].customBodyRender(value, tableMeta);
 
       const filterValue =
@@ -964,9 +964,9 @@ class MUIDataTable extends React.Component {
             selectedRows: prevState.selectedRows,
           };
         } else {
-          console.log('before sort data', data);
+          // console.log('before sort data', data);
           const sortedData = this.sortTable(data, index, newOrder);
-          console.log('sortedData', sortedData);
+          // console.log('sortedData', sortedData);
           newState = {
             ...newState,
             data: sortedData.data,
