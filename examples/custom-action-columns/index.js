@@ -71,7 +71,11 @@ class Example extends React.Component {
           empty: true,
           customBodyRender: (value, tableMeta, updateValue) => {
             return (
-              <button onClick={() => window.alert(`Clicked "Edit" for row ${tableMeta.rowIndex}`)}>
+              <button onClick={(e) => {
+                e.stopPropagation();
+                console.log('tableMeta', tableMeta);
+                window.alert(`Clicked "Edit" for row ${tableMeta.rowIndex}`);
+              }}>
                 Edit
               </button>
             );

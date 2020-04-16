@@ -253,10 +253,12 @@ class MUIDataTable extends React.Component {
   }
 
   UNSAFE_componentWillMount() {
+    console.log('UNSAFE_componentWillMount');
     this.initializeTable(this.props);
   }
 
   componentDidMount() {
+    console.log('componentDidMount');
     this.setHeadResizeable(this.headCellRefs, this.tableRef);
 
     // When we have a search, we must reset page to view it unless on serverSide since paging is handled by the user.
@@ -264,7 +266,9 @@ class MUIDataTable extends React.Component {
   }
 
   componentDidUpdate(prevProps) {
+    console.log('componentDidUpdate', prevProps);
     if (this.props.data !== prevProps.data || this.props.columns !== prevProps.columns) {
+      console.log('data or columns diff');
       this.updateOptions(this.options, this.props);
       this.setTableData(this.props, TABLE_LOAD.INITIAL, () => {
         this.setTableAction('propsUpdate');
@@ -494,6 +498,7 @@ class MUIDataTable extends React.Component {
   };
 
   transformData = (columns, data) => {
+    console.log('transformData', columns, ' / ', data);
     const leaf = (obj, path) => path.split('.').reduce((value, el) => (value ? value[el] : undefined), obj);
 
     const transformedData = Array.isArray(data[0])
@@ -516,11 +521,13 @@ class MUIDataTable extends React.Component {
       warnDeprecated(
         'Passing objects in as data is not supported, and will be prevented in a future release. Consider using ids in your data and linking it to external objects if you want to access object data from custom render functions.',
       );
-
+    console.log('transformedData', transformedData);
     return transformedData;
   };
 
   setTableData(props, status, callback = () => {}) {
+    console.log('props : ', props);
+    console.log('status : ', status);
     let tableData = [];
     let { columns, filterData, filterList } = this.buildColumns(props.columns);
     let sortIndex = null;
@@ -528,9 +535,11 @@ class MUIDataTable extends React.Component {
     let tableMeta;
 
     const data = status === TABLE_LOAD.INITIAL ? this.transformData(columns, props.data) : props.data;
+    console.log('data : ', data);
     const searchText = status === TABLE_LOAD.INITIAL ? this.options.searchText : null;
 
     columns.forEach((column, colIndex) => {
+      console.log('column, colIndex', column, colIndex);
       for (let rowIndex = 0; rowIndex < data.length; rowIndex++) {
         let value = status === TABLE_LOAD.INITIAL ? data[rowIndex][colIndex] : data[rowIndex].data[colIndex];
 
@@ -538,12 +547,14 @@ class MUIDataTable extends React.Component {
           tableData.push({
             index: status === TABLE_LOAD.INITIAL ? rowIndex : data[rowIndex].index,
             data: status === TABLE_LOAD.INITIAL ? data[rowIndex] : data[rowIndex].data,
+            rawData: props.data[rowIndex],
           });
         }
-
+        console.log('tableData : ', tableData);
         if (typeof column.customBodyRender === 'function') {
           const rowData = tableData[rowIndex].data;
           tableMeta = this.getTableMeta(rowIndex, colIndex, rowData, column, data, this.state, props.data[rowIndex]);
+          console.log('setTableData customBodyRender');
           const funcResult = column.customBodyRender(value, tableMeta);
 
           if (React.isValidElement(funcResult) && funcResult.props.value) {
@@ -688,7 +699,7 @@ class MUIDataTable extends React.Component {
   /*
    *  Build the table data used to display to the user (ie: after filter/search applied)
    */
-  computeDisplayRow(columns, row, rowIndex, filterList, searchText, dataForTableMeta, options) {
+  computeDisplayRow(columns, row, rowIndex, filterList, searchText, dataForTableMeta, options, rawData) {
     let isFiltered = false;
     let isSearchFound = false;
     let displayRow = [];
@@ -710,8 +721,9 @@ class MUIDataTable extends React.Component {
             filterList: filterList,
             searchText: searchText,
           },
-          this.props.data[rowIndex],
+          rawData,
         );
+        console.log('computeDisplayRow customBodyRender');
         const funcResult = column.customBodyRender(
           columnValue,
           tableMeta,
@@ -817,6 +829,7 @@ class MUIDataTable extends React.Component {
         prevState,
         this.props.data[row],
       );
+      console.log('updateDataCol customBodyRender');
       const funcResult = prevState.columns[index].customBodyRender(value, tableMeta);
 
       const filterValue =
@@ -842,7 +855,7 @@ class MUIDataTable extends React.Component {
     });
   };
 
-  getTableMeta = (rowIndex, colIndex, rowData, columnData, tableData, curState, originalRowData) => {
+  getTableMeta = (rowIndex, colIndex, rowData, columnData, tableData, curState, rawData) => {
     const { columns, data, displayData, filterData, ...tableState } = curState;
 
     return {
@@ -852,7 +865,7 @@ class MUIDataTable extends React.Component {
       rowData: rowData,
       tableData: tableData,
       tableState: tableState,
-      originalRowData,
+      rawData,
     };
   };
 
@@ -862,6 +875,7 @@ class MUIDataTable extends React.Component {
 
     for (let index = 0; index < data.length; index++) {
       const value = data[index].data;
+      const rawData = data[index].rawData;
       const displayRow = this.computeDisplayRow(
         columns,
         value,
@@ -870,6 +884,7 @@ class MUIDataTable extends React.Component {
         searchText,
         dataForTableMeta,
         this.options,
+        rawData,
       );
 
       if (displayRow) {
@@ -917,6 +932,7 @@ class MUIDataTable extends React.Component {
   }
 
   toggleSortColumn = index => {
+    console.warn('sort toggled');
     this.setState(
       prevState => {
         let columns = cloneDeep(prevState.columns);
@@ -948,8 +964,9 @@ class MUIDataTable extends React.Component {
             selectedRows: prevState.selectedRows,
           };
         } else {
+          console.log('before sort data', data);
           const sortedData = this.sortTable(data, index, newOrder);
-
+          console.log('sortedData', sortedData);
           newState = {
             ...newState,
             data: sortedData.data,
